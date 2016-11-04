@@ -16,9 +16,9 @@
 #define NUMHID 2
 #define NUMOUT 1
 
-#define rando() ((double)rand()/(RAND_MAX+1))
+#define rando() ((double)rand()/((long)RAND_MAX+1))
 
-main() {
+int main(void) {
     int    i, j, k, p, np, op, ranpat[NUMPAT+1], epoch;
     int    NumPattern = NUMPAT, NumInput = NUMIN, NumHidden = NUMHID, NumOutput = NUMOUT;
     double Input[NUMPAT+1][NUMIN+1] = { 0, 0, 0,  0, 0, 0,  0, 1, 0,  0, 0, 1,  0, 1, 1 };
