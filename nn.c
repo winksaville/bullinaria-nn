@@ -18,7 +18,7 @@
 
 #define rando() ((double)rand()/((double)RAND_MAX+1))
 
-main() {
+int main(void) {
     int    i, j, k, p, np, op, ranpat[NUMPAT+1], epoch;
     int    NumPattern = NUMPAT, NumInput = NUMIN, NumHidden = NUMHID, NumOutput = NUMOUT;
     double Input[NUMPAT+1][NUMIN+1] = { {0, 0, 0},  {0, 0, 0},  {0, 1, 0},  {0, 0, 1},  {0, 1, 1} };
@@ -28,6 +28,8 @@ main() {
     double DeltaO[NUMOUT+1], SumDOW[NUMHID+1], DeltaH[NUMHID+1];
     double DeltaWeightIH[NUMIN+1][NUMHID+1], DeltaWeightHO[NUMHID+1][NUMOUT+1];
     double Error, eta = 0.5, alpha = 0.9, smallwt = 0.5;
+
+    srand(1) ; // Initialize rand so results are consistent.
   
     for( j = 1 ; j <= NumHidden ; j++ ) {    /* initialize WeightIH and DeltaWeightIH */
         for( i = 0 ; i <= NumInput ; i++ ) { 
@@ -118,7 +120,7 @@ main() {
         }
     }
     fprintf(stdout, "\n\nGoodbye!\n\n") ;
-    return 1 ;
+    return 0 ;
 }
 
 /*******************************************************************************/
