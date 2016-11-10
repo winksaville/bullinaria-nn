@@ -1,8 +1,10 @@
 CC=gcc
-CFLAGS=-O0 -g
+CFLAGS=-O2 -g
 
 LNK=$(CC)
 LNKFLAGS=-lm
+
+OD=objdump
 
 all: nn
 
@@ -12,5 +14,8 @@ nn.o : nn.c Makefile
 nn : nn.o
 	$(LNK) $(LNKFLAGS) $< -o $@
 
+nn.txt : nn
+	$(OD) -d $< > $@
+
 clean :
-	@rm -f nn *.o
+	@rm -f nn *.o nn.txt
