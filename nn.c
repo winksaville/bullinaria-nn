@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 /*      To compile use "cc nn.c -O -lm -o nn" and then run using "./nn"       */
-/*      For explanations see:  http://www.cs.bham.ac.uk/~jxb/NN/nn.html       */
+/*      For explanations see:  http://www.cs.bham.ac.uk/~jxb/INC/nn.html      */
 
 #include <stdio.h>
 #include <stdlib.h> 
@@ -16,13 +16,13 @@
 #define NUMHID 2
 #define NUMOUT 1
 
-#define rando() ((double)rand()/((long)RAND_MAX+1))
+#define rando() ((double)rand()/((double)RAND_MAX+1))
 
-int main(void) {
+main() {
     int    i, j, k, p, np, op, ranpat[NUMPAT+1], epoch;
     int    NumPattern = NUMPAT, NumInput = NUMIN, NumHidden = NUMHID, NumOutput = NUMOUT;
-    double Input[NUMPAT+1][NUMIN+1] = { 0, 0, 0,  0, 0, 0,  0, 1, 0,  0, 0, 1,  0, 1, 1 };
-    double Target[NUMPAT+1][NUMOUT+1] = { 0, 0,  0, 0,  0, 1,  0, 1,  0, 0 };
+    double Input[NUMPAT+1][NUMIN+1] = { {0, 0, 0},  {0, 0, 0},  {0, 1, 0},  {0, 0, 1},  {0, 1, 1} };
+    double Target[NUMPAT+1][NUMOUT+1] = { {0, 0},  {0, 0},  {0, 1},  {0, 1},  {0, 0} };
     double SumH[NUMPAT+1][NUMHID+1], WeightIH[NUMIN+1][NUMHID+1], Hidden[NUMPAT+1][NUMHID+1];
     double SumO[NUMPAT+1][NUMOUT+1], WeightHO[NUMHID+1][NUMOUT+1], Output[NUMPAT+1][NUMOUT+1];
     double DeltaO[NUMOUT+1], SumDOW[NUMHID+1], DeltaH[NUMHID+1];
@@ -43,7 +43,7 @@ int main(void) {
     }
      
     for( epoch = 0 ; epoch < 100000 ; epoch++) {    /* iterate weight updates */
-        for( p = 1 ; p <= NumPattern ; p++ ) {    /* randomize order of individuals */
+        for( p = 1 ; p <= NumPattern ; p++ ) {    /* randomize order of training patterns */
             ranpat[p] = p ;
         }
         for( p = 1 ; p <= NumPattern ; p++) {
