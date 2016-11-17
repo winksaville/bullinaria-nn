@@ -18,11 +18,18 @@
 
 #define rando() ((double)rand()/((double)RAND_MAX+1))
 
-#define NDEBUG 0
-#if NDEBUG
+#if DBG == 0
 #define dbg(...) ((void*)0)
 #else
 #define dbg(...) fprintf(stdout, __VA_ARGS__)
+#endif
+
+#if !defined(EPOCH_COUNT) && (DBG == 1)
+#define EPOCH_COUNT 1
+#endif
+
+#if !defined(EPOCH_COUNT) && (DBG == 0)
+#define EPOCH_COUNT 100000
 #endif
 
 int main(void) {
@@ -53,18 +60,19 @@ int main(void) {
         }
     }
      
-    int epoch_count = 1 ;
-    //int epoch_count = 100000 ;
+    int epoch_count = EPOCH_COUNT ;
     for( epoch = 0 ; epoch < epoch_count ; epoch++) {    /* iterate weight updates */
         for( p = 1 ; p <= NumPattern ; p++ ) {    /* randomize order of training patterns */
             ranpat[p] = p ;
         }
-#if 0
+
         for( p = 1 ; p <= NumPattern ; p++) {
-            np = p + rando() * ( NumPattern + 1 - p ) ;
+            double ro = rando();
+            np = p + ro * ( NumPattern + 1 - p ) ;
             op = ranpat[p] ; ranpat[p] = ranpat[np] ; ranpat[np] = op ;
+            dbg("ro=%lf np=%d ranpat[%d]=%d\n", ro, np, p, ranpat[p]);
         }
-#endif
+
         Error = 0.0 ;
         double sse, err ;
         for( np = 1 ; np <= NumPattern ; np++ ) {    /* repeat for all the training patterns */
@@ -112,21 +120,23 @@ int main(void) {
             }
             dbg("Update WeightsIH: eta=%lf alpha=%lf\n", eta, alpha);
             for( j = 1 ; j <= NumHidden ; j++ ) {     /* update weights WeightIH */
-#if NDEBUG
+                double momentum;
+                double w;
+#if DBG == 0
                 DeltaWeightIH[0][j] = eta * DeltaH[j] + alpha * DeltaWeightIH[0][j] ;
                 WeightIH[0][j] +=  DeltaWeightIH[0][j] ;
 #else
-                double momentum = alpha * DeltaWeightIH[0][j] ;
+                momentum = alpha * DeltaWeightIH[0][j] ;
                 DeltaWeightIH[0][j] = (eta * DeltaH[j]) + momentum ;
                 dbg("DeltaWeightIH[%d][%d]:%lf = (eta:%lf * DeltaH[%d]:%lf) + momentum:%lf BIAS\n",
                      0, j, DeltaWeightIH[0][j], eta, j, DeltaH[j], momentum);
-#endif
-                double w = WeightIH[0][j];
+                w = WeightIH[0][j];
                 WeightIH[0][j] = WeightIH[0][j] + DeltaWeightIH[0][j] ;
                 dbg("WeightIH[%d][%d]:%lf = WeightIH[%d][%d]:%lf + DeltaWeightIH[%d][%d]:%lf\n",
                      0, j, WeightIH[0][j], 0, j, w, 0, j, DeltaWeightIH[0][j]);
+#endif
                 for( i = 1 ; i <= NumInput ; i++ ) { 
-#if NDEBUG
+#if DBG == 0
                     DeltaWeightIH[i][j] = eta * Input[p][i] * DeltaH[j] + alpha * DeltaWeightIH[i][j];
                     WeightIH[i][j] +=  DeltaWeightIH[i][j] ;
 #else
@@ -143,23 +153,23 @@ int main(void) {
             }
             dbg("Update WeightsHO:\n");
             for( k = 1 ; k <= NumOutput ; k ++ ) {    /* update weights WeightHO */
-#if NDEBUG
+                double momentum;
+                double w;
+#if DBG == 0
                 DeltaWeightHO[0][k] = eta * DeltaO[k] + alpha * DeltaWeightHO[0][k] ;
                 WeightHO[0][k] += DeltaWeightHO[0][k] ;
 #else
-                double momentum = alpha * DeltaWeightHO[0][k];
-                printf("momentum:%lf = alpha:%lf DeltaWeightHO[%d][%d]:%lf\n",
-                    momentum, alpha, 0, k, DeltaWeightHO[0][k]);
+                momentum = alpha * DeltaWeightHO[0][k];
                 DeltaWeightHO[0][k] = (eta * DeltaO[k]) + momentum;
                 dbg("DeltaWeightHO[%d][%d]:%lf = (eta:%lf * DeltaO[%d]:%lf) + momentum:%lf BIAS\n",
                      0, k, DeltaWeightHO[0][k], eta, k, DeltaO[k], momentum);
-                double w = WeightHO[0][k];
+                w = WeightHO[0][k];
                 WeightHO[0][k] = WeightHO[0][k] + DeltaWeightHO[0][k] ;
                 dbg("WeightHO[%d][%d]:%lf = WeightHO[%d][%d] + DeltaWeightHO[%d][%d]:%lf\n",
                      0, k, WeightHO[0][k], 0, k, w, 0, k, DeltaWeightHO[0][k]);
 #endif
                 for( j = 1 ; j <= NumHidden ; j++ ) {
-#if NDEBUG
+#if DBG == 0
                     DeltaWeightHO[j][k] = eta * Hidden[p][j] * DeltaO[k] + alpha * DeltaWeightHO[j][k] ;
                     WeightHO[j][k] += DeltaWeightHO[j][k] ;
 #else
@@ -179,7 +189,7 @@ int main(void) {
         if( Error < 0.0004 ) break ;  /* stop learning when 'near enough' */
     }
     
-    fprintf(stdout, "\n\nNETWORK DATA - EPOCH %d\n\nPat\t", epoch) ;   /* print network outputs */
+    fprintf(stdout, "\n\nNETWORK DATA - EPOCH %d - Error %lf\n\nPat\t", epoch, Error) ;   /* print network outputs */
     for( i = 1 ; i <= NumInput ; i++ ) {
         fprintf(stdout, "Input%-4d\t", i) ;
     }
